@@ -6,6 +6,4 @@ import com.test.digitalnomads.entities.News
 interface MainMvpView: MvpView {
 
     fun showItems(news: News)
-
-    fun showFooter()
 }

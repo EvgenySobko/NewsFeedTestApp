@@ -14,7 +14,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-
 @InjectViewState
 class MainPresenterImpl(
     private val repository: Repository,
@@ -36,7 +35,6 @@ class MainPresenterImpl(
                         runCatching { repository.getNews() }
                             .onSuccess { launch(Dispatchers.Main) { viewState.showItems(it) } }
                             .onFailure { logd("fail") }
-                        logd("done")
                     } catch (e: Throwable) {
                         logd(e)
                     }
@@ -48,9 +46,5 @@ class MainPresenterImpl(
         val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         return activeNetwork?.isConnectedOrConnecting == true
-    }
-
-    override fun addFooter() {
-        viewState.showFooter()
     }
 }

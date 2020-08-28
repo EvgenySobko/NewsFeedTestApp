@@ -32,7 +32,9 @@ abstract class NewsAdapter(
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
         if (position == itemCount - 5) loadNextPage()
-        if (position == itemCount) checkInternet()
+        if (position == itemCount - 1) {
+            checkInternet()
+        }
         if (itemList[position] is ListItem.Article) holder.bindArticle(itemList[position] as ListItem.Article)
         else holder.bindFooter()
     }
@@ -49,12 +51,6 @@ abstract class NewsAdapter(
     fun addItem(item: ListItem.Footer) {
         itemList.add(item)
         notifyDataSetChanged()
-    }
-
-    fun removeFooter() {
-        val removableList = mutableListOf<ListItem.Footer>()
-        itemList.forEach { if (it is ListItem.Footer) removableList.add(it) }
-        itemList.removeAll(removableList)
     }
 
     inner class NewsViewHolder(view: View) : RecyclerView.ViewHolder(view) {

@@ -1,5 +1,6 @@
 package com.test.digitalnomads.ui.main
 
+import android.os.Handler
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.test.digitalnomads.R
@@ -10,11 +11,10 @@ import com.test.digitalnomads.ui.main.adapter.NewsAdapter
 import com.test.digitalnomads.ui.main.mvp.AbstractMainPresenter
 import com.test.digitalnomads.ui.main.mvp.MainMvpView
 import com.test.digitalnomads.ui.webview.WebViewFragment
-import com.test.digitalnomads.utils.logd
 import kotlinx.android.synthetic.main.main_fragment.*
 import org.koin.android.ext.android.get
 
-class MainFragment: BaseFragment(R.layout.main_fragment), MainMvpView {
+class MainFragment : BaseFragment(R.layout.main_fragment), MainMvpView {
 
     @InjectPresenter
     lateinit var presenter: AbstractMainPresenter
@@ -23,6 +23,7 @@ class MainFragment: BaseFragment(R.layout.main_fragment), MainMvpView {
     fun provide(): AbstractMainPresenter = get()
 
     private var pageNum = 2
+    private var ifContainsFooter = false
 
     private val itemClick: (item: ListItem.Article) -> Unit = {
         fragmentManager!!.beginTransaction()
@@ -38,27 +39,26 @@ class MainFragment: BaseFragment(R.layout.main_fragment), MainMvpView {
             if (pageNum < 6 && presenter.isInternetAvailable(requireContext())) {
                 presenter.getNews(pageNum)
                 pageNum++
+                ifContainsFooter = false
             }
         }
 
         override fun checkInternet() {
-            if (!presenter.isInternetAvailable(requireContext())) presenter.addFooter()
+            if (!presenter.isInternetAvailable(requireContext()) && !ifContainsFooter) {
+                Handler().post { addItem(ListItem.Footer) }
+                ifContainsFooter = true
+            }
         }
     }
 
     override fun onInitView() {
         recyclerView.adapter = newsAdapter
-        presenter.getNews(1)
+        presenter.getNews(pageNum - 1)
     }
 
     override fun showItems(news: News) {
-        newsAdapter.addItems(news)
-        logd(presenter.isInternetAvailable(requireContext()))
-        if (!presenter.isInternetAvailable(requireContext())) newsAdapter.addItem(ListItem.Footer)
-        else newsAdapter.removeFooter()
-    }
-
-    override fun showFooter() {
-        newsAdapter.addItem(ListItem.Footer)
+        with(newsAdapter) {
+            addItems(news)
+        }
     }
 }
